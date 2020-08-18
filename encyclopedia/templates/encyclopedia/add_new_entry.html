@@ -6,11 +6,12 @@
 
 {% block body %}
 
-        <h1>Add Task</h1>
+        <h1>Add new entry to the wiki:</h1>
         <h3 class="text-danger">{{ message }}</h3>
     <form action="{% url 'new_entry' %}" method="post">
         {% csrf_token %}
         {{ form }}
+        <br>
         <input type="submit">
     </form>
 

@@ -4,28 +4,54 @@ from . import util
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 import markdown2
+from django.http import HttpResponse
 
 class new_entry_form(forms.Form):
     entry = forms.CharField(label="New Entry Name:",max_length=20)
     entry_content =forms.CharField(label="Description", min_length=20, widget=forms.Textarea())
 
+class search_form(forms.Form):
+    q=forms.CharField(max_length=15,widget=forms.Select(attrs={'onchange': 'submit();'}))
+
 
 def index(request):
+    message ="All Pages"
+    entries = util.list_entries()
+    if request.method == "POST":
+        form = search_form(request.POST)
+        if form.is_valid():
+            q= str(form.cleaned_data["q"]).lower()
+            #check if we have a direct match
+            for entry in entries:
+                if str(entry).lower() == q:
+                    return HttpResponseRedirect(reverse('entry', args=(q,)))
+            #otherwise check if we have partial match:
+            matching = [s for s in entries if q.lower() in s.lower()]
+            if len(matching) > 0:
+                entries = matching
+                message = "Search Results"
+            else:
+                #nothing found
+                return HttpResponseRedirect(reverse('entry', args=("No_Search_Result",)))
+            
     return render(request, "encyclopedia/index.html", {
-        "entries": util.list_entries()
+        "entries": entries,
+        "message":message
     })
 
 def entry(request, entry):
-    entry_content = util.get_entry(entry)
-    if entry_content is None:
-        entry_content = util.get_entry('NoneZ4#')
-        entry = "Not found.."
+    if entry == "No_Search_Result":
+        entry_content = "**Sorry, nothing found**"
+    else:
+        entry_content = util.get_entry(entry)
+        if entry_content is None:
+            entry_content = util.get_entry('NoneZ4#')
+            entry = "Not found.."
     return render(request, "encyclopedia/entry.html", {
         "entry": entry,
         "entry_content" : markdown2.markdown(entry_content)
     })
 def random(request):
-    print(request)
     entry = util.get_random_entry()
     return HttpResponseRedirect(reverse('entry', args=(entry,)))
 
