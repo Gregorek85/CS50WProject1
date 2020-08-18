@@ -22,10 +22,11 @@
                      <a href="{% url 'new_entry' %}">Create New Page</a>
                 </div>
                 <div>
-                    <form>
-                    TODO add a form that has only one button and launches getRandomentry page
-                    </form>
-                    Random Page
+                <form action="{% url 'random' %}" method="post">
+                    {% csrf_token %}
+                    <button type ="submit" id="randombutton">Random Page</button>
+                </form>
+                    
                 </div>
                 {% block nav %}
                 {% endblock %}

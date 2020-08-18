@@ -24,6 +24,10 @@ def entry(request, entry):
         "entry": entry,
         "entry_content" : markdown2.markdown(entry_content)
     })
+def random(request):
+    print(request)
+    entry = util.get_random_entry()
+    return HttpResponseRedirect(reverse('entry', args=(entry,)))
 
 def new_entry(request):
     message = ""
@@ -31,7 +35,7 @@ def new_entry(request):
         form = new_entry_form(request.POST)
         if form.is_valid():
             entry = form.cleaned_data["entry"]
-            new_entry_content = "#"+entry+form.cleaned_data["entry_content"]
+            new_entry_content = form.cleaned_data["entry_content"]
             #Check if the entry exists
             old_entry_content = util.get_entry(entry)
             if old_entry_content is None: #then it is ok to add new

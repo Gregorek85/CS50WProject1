@@ -1,8 +1,10 @@
 import re
-
+import random
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 
+def get_random_entry():
+    return random.choice(list_entries())
 
 def list_entries():
     """
