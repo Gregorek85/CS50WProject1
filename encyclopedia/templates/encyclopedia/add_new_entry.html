@@ -6,6 +6,12 @@
 
 {% block body %}
 
-    TODO add form here to add a new entry
+        <h1>Add Task</h1>
+        <h3 class="text-danger">{{ message }}</h3>
+    <form action="{% url 'new_entry' %}" method="post">
+        {% csrf_token %}
+        {{ form }}
+        <input type="submit">
+    </form>
 
 {% endblock %}
