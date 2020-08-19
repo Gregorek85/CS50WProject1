@@ -13,7 +13,32 @@ class new_entry_form(forms.Form):
 class search_form(forms.Form):
     q=forms.CharField(max_length=15,widget=forms.Select(attrs={'onchange': 'submit();'}))
 
+class editForm(forms.Form):
+    entry_content =forms.CharField(label="Description", min_length=20, widget=forms.Textarea())
+    entry = forms.CharField(widget=forms.HiddenInput)
 
+def edit(request,entry):
+    if request.method == "POST":
+        form = editForm(request.POST)
+        if form.is_valid():
+            new_entry_content = form.cleaned_data["entry_content"]
+            entry = form.cleaned_data["entry"]
+            #Check if the entry exists
+            old_entry_content = util.get_entry(entry)
+            if old_entry_content is None: #then something went wrong
+                message = 'Something went wrong, please try again'
+            else:
+                util.save_entry(entry, new_entry_content)
+                return HttpResponseRedirect(reverse('entry', args=(entry,)))
+    else:
+        entry_content = util.get_entry(entry)
+        form = editForm(initial={'entry_content': entry_content,"entry":entry})
+        message = ''
+    return render(request, "encyclopedia/edit.html", {
+        "entry": entry,
+        "form" : form,
+        "message": message
+    })
 def index(request):
     message ="All Pages"
     entries = util.list_entries()
@@ -49,7 +74,7 @@ def entry(request, entry):
             entry = "Not found.."
     return render(request, "encyclopedia/entry.html", {
         "entry": entry,
-        "entry_content" : markdown2.markdown(entry_content)
+        "entry_content" : markdown2.markdown(entry_content),
     })
 def random(request):
     entry = util.get_random_entry()
