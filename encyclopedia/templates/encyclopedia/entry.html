@@ -8,5 +8,7 @@
 
     {{entry_content |safe }}
     <br>
+    {%if entry != "No_Search_Result" and entry != "Not found.."%}
     <a href="{% url 'edit' entry %}">Edit this page</a>
+    {%endif %}
 {% endblock %}
